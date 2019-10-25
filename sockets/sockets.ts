@@ -1,8 +1,20 @@
 import { Socket } from 'socket.io';
+import { ListUser } from '../classes/list-user';
+import { User } from '../classes/user';
+
+export const usersConnect = new ListUser();
+
+export const connectClient = (client: Socket) => {
+
+    const user = new User(client.id);
+    usersConnect.add(user);
+
+}
 
 export const disconnect = (client: Socket) => {
     client.on('disconnect', () => {
         console.log('Cliente desconetado');
+        usersConnect.deleteUser(client.id);
     });
 }
 
@@ -15,4 +27,21 @@ export const message = (client: Socket, io: SocketIO.Server) => {
         console.log('Mensaje recibido', payload);
         io.emit('message-new', payload);
     })
+}
+
+// Configurar usuario
+export const configUser = (client: Socket, io: SocketIO.Server) => {
+    client.on('config-user', (payload: {
+        name: string
+    }, callback: (args: {
+        ok: boolean;
+        message: any;
+    }) => void) => {
+        console.log(`User Name: ${payload.name}`);
+        usersConnect.updateName(client.id, payload.name);
+        callback({
+            ok: true,
+            message: `Usuario ${payload.name}, Configurado`
+        });
+    });
 }
