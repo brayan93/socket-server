@@ -36,13 +36,15 @@ export default class Server {
 
         this.io.on('connection', client => {
             // Conectar client
-            socket.connectClient(client);
+            socket.connectClient(client, this.io);
             // Login
             socket.configUser(client, this.io);
             // Mensajes
             socket.message(client, this.io);
+            // Obtener usurios
+            socket.getUsers(client, this.io);
             // Desconectar
-            socket.disconnect(client);
+            socket.disconnect(client, this.io);
 
         });
     }
